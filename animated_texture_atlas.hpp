@@ -13,9 +13,11 @@
 class AnimatedTextureAtlas {
   public:
     AnimatedTextureAtlas(const std::string &json_path, const std::string &animated_texture_atlas_path,
-                         double ms_per_animation_frame, std::optional<TexturePacker> texture_packer = std::nullopt);
+                         double ms_per_animation_frame, bool looping = true,
+                         std::optional<TexturePacker> texture_packer = std::nullopt);
 
     std::vector<glm::vec2> get_texture_coordinates_of_current_animation_frame(double ms_curr_time);
+    void reset_processed_state();
 
   private:
     TextureAtlas texture_atlas;
@@ -28,6 +30,7 @@ class AnimatedTextureAtlas {
     double ms_accumulated_time;
     unsigned int curr_animation_frame;
     unsigned int total_animation_frames;
+    bool looping;
 };
 
 #endif // ANIMATED_TEXTURE_ATLAS_HPP

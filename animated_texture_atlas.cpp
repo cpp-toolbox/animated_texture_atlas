@@ -7,8 +7,9 @@
 using json = nlohmann::json;
 
 AnimatedTextureAtlas::AnimatedTextureAtlas(const std::string &json_path, const std::string &animated_texture_atlas_path,
-                                           double ms_per_animation_frame, std::optional<TexturePacker> texture_packer)
-    : texture_atlas{json_path, animated_texture_atlas_path, true, true},
+                                           double ms_per_animation_frame, bool looping,
+                                           std::optional<TexturePacker> texture_packer)
+    : texture_atlas{json_path, animated_texture_atlas_path, true, true}, looping(looping),
       animated_texture_atlas_path(animated_texture_atlas_path), texture_packer(texture_packer),
       ms_per_animation_frame{ms_per_animation_frame}, ms_prev_time{0.0}, ms_accumulated_time{0.0},
       curr_animation_frame{0} {
@@ -25,6 +26,12 @@ AnimatedTextureAtlas::AnimatedTextureAtlas(const std::string &json_path, const s
     }
 }
 
+void AnimatedTextureAtlas::reset_processed_state() {
+    ms_prev_time = 0;
+    ms_accumulated_time = 0;
+    curr_animation_frame = 0;
+}
+
 std::vector<glm::vec2> AnimatedTextureAtlas::get_texture_coordinates_of_current_animation_frame(double ms_curr_time) {
     if (ms_prev_time == 0.0) {
         // animation hasn't run yet
@@ -35,7 +42,12 @@ std::vector<glm::vec2> AnimatedTextureAtlas::get_texture_coordinates_of_current_
     ms_prev_time = ms_curr_time;
 
     while (ms_accumulated_time >= ms_per_animation_frame) {
-        curr_animation_frame = (curr_animation_frame + 1) % total_animation_frames;
+        curr_animation_frame = curr_animation_frame + 1;
+        if (looping) {
+            curr_animation_frame %= total_animation_frames;
+        } else {
+            curr_animation_frame = std::min(total_animation_frames - 1, curr_animation_frame);
+        }
         ms_accumulated_time -= ms_per_animation_frame;
     }
 
