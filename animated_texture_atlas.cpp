@@ -7,11 +7,11 @@
 using json = nlohmann::json;
 
 AnimatedTextureAtlas::AnimatedTextureAtlas(const std::string &json_path, const std::string &animated_texture_atlas_path,
-                                           double ms_per_animation_frame, bool looping,
+                                           double frame_rate_hz, bool looping,
                                            std::optional<TexturePacker> texture_packer)
     : texture_atlas{json_path, animated_texture_atlas_path}, looping(looping),
       animated_texture_atlas_path(animated_texture_atlas_path), texture_packer(texture_packer),
-      ms_per_animation_frame{ms_per_animation_frame}, ms_prev_time{0.0}, ms_accumulated_time{0.0},
+      ms_per_animation_frame{1000.0 / frame_rate_hz}, ms_prev_time{0.0}, ms_accumulated_time{0.0},
       curr_animation_frame{0} {
 
     if (this->texture_packer.has_value()) {
@@ -47,7 +47,13 @@ std::vector<glm::vec2> AnimatedTextureAtlas::get_texture_coordinates_of_current_
         if (looping) {
             curr_animation_frame %= total_animation_frames;
         } else {
+            // will be locked on the last frame
+
             curr_animation_frame = std::min(total_animation_frames - 1, curr_animation_frame);
+
+            if (curr_animation_frame == total_animation_frames - 1) { // on the last frame
+                animation_is_complete = true;
+            }
         }
         ms_accumulated_time -= ms_per_animation_frame;
     }
