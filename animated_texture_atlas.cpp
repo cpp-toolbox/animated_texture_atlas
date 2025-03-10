@@ -9,14 +9,15 @@ using json = nlohmann::json;
 AnimatedTextureAtlas::AnimatedTextureAtlas(const std::string &json_path, const std::string &animated_texture_atlas_path,
                                            double ms_per_animation_frame, bool looping,
                                            std::optional<TexturePacker> texture_packer)
-    : texture_atlas{json_path, animated_texture_atlas_path, true, true}, looping(looping),
+    : texture_atlas{json_path, animated_texture_atlas_path}, looping(looping),
       animated_texture_atlas_path(animated_texture_atlas_path), texture_packer(texture_packer),
       ms_per_animation_frame{ms_per_animation_frame}, ms_prev_time{0.0}, ms_accumulated_time{0.0},
       curr_animation_frame{0} {
 
     if (this->texture_packer.has_value()) {
         /*auto sprites = texture_packer.*/
-        total_animation_frames = texture_packer->get_atlas_size_of_sub_texture(animated_texture_atlas_path);
+        total_animation_frames =
+            texture_packer->get_packed_texture_sub_texture(animated_texture_atlas_path).sub_atlas.size();
     } else {
         std::ifstream file(json_path);
         json spritesheet_json;
