@@ -10,6 +10,8 @@
 
 #include "sbpt_generated_includes.hpp"
 
+// This class provides a way to compute the texture coordinates for an animated rectangle
+// it doesn't provide the geometry but only the texture coordinates
 class AnimatedTextureAtlas {
   public:
     AnimatedTextureAtlas() {};
